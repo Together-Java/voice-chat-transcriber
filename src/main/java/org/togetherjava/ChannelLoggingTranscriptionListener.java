@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +18,7 @@ public class ChannelLoggingTranscriptionListener implements TranscriptionListene
     private static final String LOGS_CHANNEL = "logs-vc";
 
     @Override
-    public void receiveTranscription(Guild guild, User user, String transcription) {
+    public void receiveTranscription(Guild guild, AudioChannel channel, User user, String transcription) {
         TextChannel logsChannel = guild.getTextChannelsByName(LOGS_CHANNEL, true).stream()
                 .findFirst()
                 .orElse(null);
@@ -36,6 +37,7 @@ public class ChannelLoggingTranscriptionListener implements TranscriptionListene
                 .setDescription(transcription)
                 .addField("User", user.getAsMention(), true)
                 .addField("Id", user.getId(), true)
+                .addField("Channel", channel.getName(), true)
                 .setColor(Color.CYAN)
                 .setTimestamp(Instant.now());
 

@@ -70,7 +70,7 @@ public class VoiceChannelListener extends ListenerAdapter {
     }
 
     private void joinVoiceChannel(Guild guild, AudioChannel channel, AudioManager audioManager) {
-        AudioHandler handler = new AudioHandler(guild, voskTranscriber, transcriptionListeners);
+        AudioHandler handler = new AudioHandler(guild, channel, voskTranscriber, transcriptionListeners);
         activeHandlers.put(guild.getIdLong(), handler);
         audioManager.setReceivingHandler(handler);
         audioManager.openAudioConnection(channel);
@@ -95,7 +95,9 @@ public class VoiceChannelListener extends ListenerAdapter {
     }
 
     private boolean shouldJoinVoiceChannel(AudioChannel joinedChannel, AudioManager audioManager) {
-        return joinedChannel != null && !isInVoiceChannel(audioManager) && claimedChannels.add(joinedChannel.getIdLong());
+        return joinedChannel != null
+                && !isInVoiceChannel(audioManager)
+                && claimedChannels.add(joinedChannel.getIdLong());
     }
 
     private boolean isVoiceChannelEmpty(AudioChannel channel) {

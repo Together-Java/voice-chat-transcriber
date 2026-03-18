@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.UserAudio;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ public class AudioHandler implements AudioReceiveHandler {
     private static final long SILENCE_THRESHOLD_MS = 500;
 
     private final Guild guild;
+    private final AudioChannel channel;
     private final VoskTranscriber voskTranscriber;
     private final Map<User, Recognizer> recognizers;
     private final Map<User, Long> lastAudioTime;
@@ -28,8 +30,12 @@ public class AudioHandler implements AudioReceiveHandler {
     private final ScheduledExecutorService silenceDetector;
 
     public AudioHandler(
-            Guild guild, VoskTranscriber voskTranscriber, List<TranscriptionListener> transcriptionListeners) {
+            Guild guild,
+            AudioChannel channel,
+            VoskTranscriber voskTranscriber,
+            List<TranscriptionListener> transcriptionListeners) {
         this.guild = guild;
+        this.channel = channel;
         this.voskTranscriber = voskTranscriber;
         this.recognizers = new ConcurrentHashMap<>();
         this.lastAudioTime = new ConcurrentHashMap<>();
@@ -87,8 +93,8 @@ public class AudioHandler implements AudioReceiveHandler {
 
     private void logTranscription(User user, String transcription) {
         if (!transcription.isBlank()) {
-            transcriptionListeners.forEach(
-                    transcriptionListener -> transcriptionListener.receiveTranscription(guild, user, transcription));
+            transcriptionListeners.forEach(transcriptionListener ->
+                    transcriptionListener.receiveTranscription(guild, channel, user, transcription));
         }
     }
 

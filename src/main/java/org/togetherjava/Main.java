@@ -28,11 +28,13 @@ public class Main {
 
         VoskTranscriber voskTranscriber = new VoskTranscriber(System.getenv().getOrDefault("VOSK_MODEL_PATH", "model"));
 
+        Set<Long> channels = ConcurrentHashMap.newKeySet();
+
         int numberOfBotsStarted = 0;
 
         for (String token : config.botTokens()) {
             if (!token.isBlank()) {
-                startBot(config, token, voskTranscriber, ConcurrentHashMap.newKeySet());
+                startBot(config, token, voskTranscriber, channels);
                 numberOfBotsStarted++;
             }
         }

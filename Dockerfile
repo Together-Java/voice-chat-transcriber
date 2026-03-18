@@ -11,8 +11,8 @@ RUN ./gradlew installDist --no-daemon -x spotlessCheck
 FROM eclipse-temurin:25-jre-noble
 WORKDIR /app
 
-COPY --from=builder /app/build/install/voice-chat-transcription/ .
+COPY --from=builder /app/build/install/voice-chat-transcriber/ .
 
 VOLUME /app/model
 
-ENTRYPOINT ["bin/voice-chat-transcription"]
+ENTRYPOINT ["bin/voice-chat-transcriber"]

@@ -22,19 +22,17 @@ import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 
 public class Main {
     private static final Logger LOGGER = LogManager.getLogger(Main.class);
-    private static final String VOSK_MODEL_PATH = System.getenv().getOrDefault("VOSK_MODEL_PATH", "model");
 
     void main() throws Exception {
         Config config = ConfigLoader.loadConfig(Path.of("config.json"));
 
-        VoskTranscriber voskTranscriber = new VoskTranscriber(VOSK_MODEL_PATH);
-        Set<Long> claimedChannels = ConcurrentHashMap.newKeySet();
+        VoskTranscriber voskTranscriber = new VoskTranscriber(System.getenv().getOrDefault("VOSK_MODEL_PATH", "model"));
 
         int numberOfBotsStarted = 0;
 
         for (String token : config.botTokens()) {
             if (!token.isBlank()) {
-                startBot(config, token, voskTranscriber, claimedChannels);
+                startBot(config, token, voskTranscriber, ConcurrentHashMap.newKeySet());
                 numberOfBotsStarted++;
             }
         }

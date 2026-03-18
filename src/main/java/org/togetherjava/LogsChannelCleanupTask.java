@@ -22,49 +22,62 @@ public class LogsChannelCleanupTask {
     private static final Duration CLEANUP_INTERVAL = Duration.ofDays(1);
     private static final int BATCH_SIZE = 100;
     private final JDA jda;
-    private final String logsChannel;
-
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final String logsChannelName;
+    private final ScheduledExecutorService scheduler;
 
     public LogsChannelCleanupTask(JDA jda, Config config) {
         this.jda = jda;
-        this.logsChannel = config.logsChannel();
+        this.logsChannelName = config.logsChannel();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(this::cleanGuild, 0, CLEANUP_INTERVAL.toSeconds(), TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(this::cleanupAllGuilds, 0, CLEANUP_INTERVAL.toSeconds(), TimeUnit.SECONDS);
     }
 
-    private void cleanGuild() {
-        jda.getGuilds().forEach(guild -> guild.getTextChannelsByName(logsChannel, true).stream()
+    private void cleanupAllGuilds() {
+        OffsetDateTime cutoff = OffsetDateTime.now().minus(RETENTION);
+
+        jda.getGuilds().forEach(guild -> guild.getTextChannelsByName(logsChannelName, true).stream()
                 .findFirst()
-                .ifPresent(this::cleanChannel));
+                .ifPresent(channel -> cleanupChannel(channel, cutoff)));
     }
 
-    private void cleanChannel(TextChannel channel) {
-        fetchAndDelete(channel, channel.getHistory(), OffsetDateTime.now().minus(RETENTION));
+    private void cleanupChannel(TextChannel channel, OffsetDateTime cutoff) {
+        fetchAndDeleteBatch(channel.getHistory(), channel, cutoff);
     }
 
-    private void fetchAndDelete(TextChannel channel, MessageHistory history, OffsetDateTime cutoff) {
+    private void fetchAndDeleteBatch(MessageHistory history, TextChannel channel, OffsetDateTime cutoff) {
         history.retrievePast(BATCH_SIZE)
                 .queue(
-                        messages -> {
-                            if (messages.isEmpty()) {
-                                return;
-                            }
+                        messages -> handleMessages(history, channel, cutoff, messages),
+                        error -> logFailure(channel, error));
+    }
 
-                            List<Message> messagesToDelete = messages.stream()
-                                    .filter(message -> message.getTimeCreated().isBefore(cutoff))
-                                    .toList();
+    private void handleMessages(
+            MessageHistory history, TextChannel channel, OffsetDateTime cutoff, List<Message> messages) {
+        if (messages.isEmpty()) {
+            return;
+        }
 
-                            if (!messagesToDelete.isEmpty()) {
-                                channel.purgeMessages(messagesToDelete);
-                            }
+        deleteOldMessages(channel, cutoff, messages);
 
-                            if (messages.size() == BATCH_SIZE) {
-                                fetchAndDelete(channel, history, cutoff);
-                            }
-                        },
-                        e -> LOGGER.error("Failed to fetch message history for cleanup in #{}", channel.getName(), e));
+        if (messages.size() == BATCH_SIZE) {
+            fetchAndDeleteBatch(history, channel, cutoff);
+        }
+    }
+
+    private void deleteOldMessages(TextChannel channel, OffsetDateTime cutoff, List<Message> messages) {
+        List<Message> toDelete = messages.stream()
+                .filter(msg -> msg.getTimeCreated().isBefore(cutoff))
+                .toList();
+
+        if (!toDelete.isEmpty()) {
+            channel.purgeMessages(toDelete);
+        }
+    }
+
+    private void logFailure(TextChannel channel, Throwable error) {
+        LOGGER.error("Failed to fetch message history for cleanup in #{}", channel.getName(), error);
     }
 }

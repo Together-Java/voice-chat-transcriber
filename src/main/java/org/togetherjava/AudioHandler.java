@@ -63,6 +63,7 @@ public class AudioHandler implements AudioReceiveHandler {
 
     private void flushSilentUsers() {
         long now = System.currentTimeMillis();
+
         lastAudioTime.forEach((user, lastTime) -> {
             if (now - lastTime > SILENCE_THRESHOLD_MS) {
                 lastAudioTime.remove(user);

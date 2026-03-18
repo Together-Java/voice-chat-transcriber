@@ -98,8 +98,7 @@ public class VoiceChannelListener extends ListenerAdapter {
     }
 
     private boolean shouldJoinVoiceChannel(AudioChannel joinedChannel, AudioManager audioManager) {
-        return joinedChannel != null
-                && !isInVoiceChannel(audioManager)
+        return !isInVoiceChannel(audioManager)
                 && !config.ignoreChannels().contains(joinedChannel.getName())
                 && claimedChannels.add(joinedChannel.getIdLong());
     }

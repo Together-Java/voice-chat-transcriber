@@ -97,10 +97,13 @@ public class VoiceChannelListener extends ListenerAdapter {
     private boolean shouldJoinVoiceChannel(AudioChannel joinedChannel, AudioManager audioManager) {
         return joinedChannel != null
                 && !isInVoiceChannel(audioManager)
+                && !IGNORED_CHANNELS.contains(joinedChannel.getName())
                 && claimedChannels.add(joinedChannel.getIdLong());
     }
 
     private boolean isVoiceChannelEmpty(AudioChannel channel) {
         return channel.getMembers().stream().allMatch(m -> m.getUser().isBot());
     }
+
+    private static final List<String> IGNORED_CHANNELS = List.of("Stage", "Gaming", "Chit Chat", "Support/Studying Room");
 }

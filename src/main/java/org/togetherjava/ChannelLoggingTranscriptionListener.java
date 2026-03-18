@@ -12,19 +12,24 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.togetherjava.config.Config;
 
 public class ChannelLoggingTranscriptionListener implements TranscriptionListener {
     private static final Logger LOGGER = LogManager.getLogger(ChannelLoggingTranscriptionListener.class);
-    private static final String LOGS_CHANNEL = "logs-vc";
+    private final String logsChannel;
+
+    public ChannelLoggingTranscriptionListener(Config config) {
+        this.logsChannel = config.logsChannel();
+    }
 
     @Override
     public void receiveTranscription(Guild guild, AudioChannel channel, User user, String transcription) {
-        TextChannel logsChannel = guild.getTextChannelsByName(LOGS_CHANNEL, true).stream()
+        TextChannel logChannel = guild.getTextChannelsByName(logsChannel, true).stream()
                 .findFirst()
                 .orElse(null);
 
-        if (logsChannel == null) {
-            LOGGER.warn("No '{}' channel found in guild '{}'", LOGS_CHANNEL, guild.getName());
+        if (logChannel == null) {
+            LOGGER.warn("No '{}' channel found in guild '{}'", logsChannel, guild.getName());
             return;
         }
 
@@ -41,6 +46,6 @@ public class ChannelLoggingTranscriptionListener implements TranscriptionListene
                 .setColor(Color.CYAN)
                 .setTimestamp(Instant.now());
 
-        logsChannel.sendMessageEmbeds(embed.build()).queue();
+        logChannel.sendMessageEmbeds(embed.build()).queue();
     }
 }

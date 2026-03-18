@@ -14,19 +14,21 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.togetherjava.config.Config;
 
 public class LogsChannelCleanupTask {
     private static final Logger LOGGER = LogManager.getLogger(LogsChannelCleanupTask.class);
-    private static final String LOGS_CHANNEL = "logs-vc";
     private static final Duration RETENTION = Duration.ofDays(7);
     private static final Duration CLEANUP_INTERVAL = Duration.ofDays(1);
     private static final int BATCH_SIZE = 100;
     private final JDA jda;
+    private final String logsChannel;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    public LogsChannelCleanupTask(JDA jda) {
+    public LogsChannelCleanupTask(JDA jda, Config config) {
         this.jda = jda;
+        this.logsChannel = config.logsChannel();
     }
 
     public void start() {
@@ -34,7 +36,7 @@ public class LogsChannelCleanupTask {
     }
 
     private void cleanGuild() {
-        jda.getGuilds().forEach(guild -> guild.getTextChannelsByName(LOGS_CHANNEL, true).stream()
+        jda.getGuilds().forEach(guild -> guild.getTextChannelsByName(logsChannel, true).stream()
                 .findFirst()
                 .ifPresent(this::cleanChannel));
     }

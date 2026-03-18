@@ -14,18 +14,21 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.togetherjava.config.Config;
 
 public class VoiceChannelListener extends ListenerAdapter {
     private static final Logger LOGGER = LogManager.getLogger(VoiceChannelListener.class);
+    private final Config config;
     private final VoskTranscriber voskTranscriber;
     private final Map<Long, AudioHandler> activeHandlers;
     private final List<TranscriptionListener> transcriptionListeners;
     private final Set<Long> claimedChannels;
 
-    public VoiceChannelListener(VoskTranscriber voskTranscriber, Set<Long> claimedChannels) {
+    public VoiceChannelListener(Config config, VoskTranscriber voskTranscriber, Set<Long> claimedChannels) {
+        this.config = config;
         this.voskTranscriber = voskTranscriber;
         this.activeHandlers = new ConcurrentHashMap<>();
-        this.transcriptionListeners = List.of(new ChannelLoggingTranscriptionListener());
+        this.transcriptionListeners = List.of(new ChannelLoggingTranscriptionListener(config));
         this.claimedChannels = claimedChannels;
     }
 
@@ -97,13 +100,11 @@ public class VoiceChannelListener extends ListenerAdapter {
     private boolean shouldJoinVoiceChannel(AudioChannel joinedChannel, AudioManager audioManager) {
         return joinedChannel != null
                 && !isInVoiceChannel(audioManager)
-                && !IGNORED_CHANNELS.contains(joinedChannel.getName())
+                && !config.ignoreChannels().contains(joinedChannel.getName())
                 && claimedChannels.add(joinedChannel.getIdLong());
     }
 
     private boolean isVoiceChannelEmpty(AudioChannel channel) {
         return channel.getMembers().stream().allMatch(m -> m.getUser().isBot());
     }
-
-    private static final List<String> IGNORED_CHANNELS = List.of("Stage", "Gaming", "Chit Chat", "Support/Studying Room");
 }

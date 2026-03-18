@@ -47,4 +47,8 @@ dependencies {
     runtimeOnly 'club.minnced:jdave-native-linux-aarch64:0.1.7'
     runtimeOnly 'club.minnced:jdave-native-win-x86-64:0.1.7'
     runtimeOnly 'club.minnced:jdave-native-darwin:0.1.7'
+
+    implementation 'tools.jackson.core:jackson-core:3.1.0'
+    implementation 'tools.jackson.core:jackson-databind:3.1.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.21'
 }

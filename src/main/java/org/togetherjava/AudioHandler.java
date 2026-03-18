@@ -40,11 +40,7 @@ public class AudioHandler implements AudioReceiveHandler {
         this.recognizers = new ConcurrentHashMap<>();
         this.lastAudioTime = new ConcurrentHashMap<>();
         this.transcriptionListeners = transcriptionListeners;
-        this.silenceDetector = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "silence-detector");
-            t.setDaemon(true);
-            return t;
-        });
+        this.silenceDetector = Executors.newSingleThreadScheduledExecutor();
         silenceDetector.scheduleAtFixedRate(
                 this::flushSilentUsers, SILENCE_THRESHOLD_MS, SILENCE_THRESHOLD_MS, TimeUnit.MILLISECONDS);
     }

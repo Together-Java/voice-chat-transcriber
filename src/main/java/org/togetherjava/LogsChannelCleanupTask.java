@@ -23,11 +23,7 @@ public class LogsChannelCleanupTask {
     private static final int BATCH_SIZE = 100;
     private final JDA jda;
 
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
-        Thread t = new Thread(r, "logs-cleanup");
-        t.setDaemon(true);
-        return t;
-    });
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public LogsChannelCleanupTask(JDA jda) {
         this.jda = jda;

@@ -37,7 +37,7 @@ public class ChannelLoggingTranscriptionListener implements TranscriptionListene
                 .setDescription(transcription)
                 .addField("User", user.getAsMention(), true)
                 .addField("Id", user.getId(), true)
-                .addField("Channel", channel.getName(), true)
+                .addField("Channel", channel.getAsMention(), true)
                 .setColor(Color.CYAN)
                 .setTimestamp(Instant.now());
 

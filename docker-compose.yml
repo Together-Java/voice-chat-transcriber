@@ -1,0 +1,9 @@
+services:
+  bot:
+    build: .
+    restart: unless-stopped
+    environment:
+      BOT_TOKENS:
+      VOSK_MODEL_PATH: /app/model
+    volumes:
+      - ./model:/app/model:ro

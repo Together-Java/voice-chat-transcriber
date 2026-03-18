@@ -1,0 +1,14 @@
+{
+  "botTokens": [
+    "<bot_token>",
+    "<bot_token>",
+    "<bot_token>"
+  ],
+  "ignoreChannels": [
+    "Stage",
+    "Gaming",
+    "Chit Chat",
+    "Support/Studying Room"
+  ],
+  "logsChannel": "logs-vc"
+}

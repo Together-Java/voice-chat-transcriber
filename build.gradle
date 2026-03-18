@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.diffplug.spotless' version '8.3.0'
+}
+
+group = 'org.togetherjava'
+version = '1.0'
+
+application {
+    mainClass = 'org.togetherjava.Main'
+    applicationDefaultJvmArgs = ['--enable-native-access=ALL-UNNAMED']
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+}
+
+jar {
+    manifest {
+        attributes 'Enable-Native-Access': 'ALL-UNNAMED'
+    }
+}
+
+spotless {
+    java {
+        palantirJavaFormat()
+        importOrder('java', 'javax', 'net', 'org', 'com', '')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'net.dv8tion:JDA:6.3.2'
+    implementation 'com.alphacephei:vosk:0.3.45'
+    implementation 'org.apache.logging.log4j:log4j-api:2.24.1'
+    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.24.1'
+
+    implementation 'club.minnced:jdave-api:0.1.7'
+    runtimeOnly 'club.minnced:jdave-native-linux-x86-64:0.1.7'
+    runtimeOnly 'club.minnced:jdave-native-linux-aarch64:0.1.7'
+    runtimeOnly 'club.minnced:jdave-native-win-x86-64:0.1.7'
+    runtimeOnly 'club.minnced:jdave-native-darwin:0.1.7'
+
+    implementation 'tools.jackson.core:jackson-core:3.1.0'
+    implementation 'tools.jackson.core:jackson-databind:3.1.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.21'
+}
